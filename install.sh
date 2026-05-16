@@ -57,3 +57,35 @@ mkfs.ext4 /dev/vg_arch/lv_root
 mkfs.ext4 /dev/vg_arch/lv_home
 mkfs.ext4 /dev/vg_arch/lv_vbox
 mkfs.ext4 /dev/vg_arch/lv_shared
+
+# lv_luks : volume chiffré sans montage automatique, monté à la main par l'utilisateur
+echo -n "$PASSWORD" | cryptsetup luksFormat --type luks2 /dev/vg_arch/lv_luks -
+echo -n "$PASSWORD" | cryptsetup open /dev/vg_arch/lv_luks lv_luks_open -
+mkfs.ext4 /dev/mapper/lv_luks_open
+cryptsetup close lv_luks_open
+
+# montage
+mount /dev/vg_arch/lv_root /mnt
+mkdir -p /mnt/boot/efi /mnt/home /mnt${MOUNT_VBOX} /mnt${MOUNT_SHARED}
+
+mount "${DISK}1"             /mnt/boot/efi
+mount /dev/vg_arch/lv_home   /mnt/home
+mount /dev/vg_arch/lv_vbox   /mnt${MOUNT_VBOX}
+mount /dev/vg_arch/lv_shared /mnt${MOUNT_SHARED}
+swapon /dev/vg_arch/lv_swap
+
+# installation du système de base
+pacstrap -K /mnt \
+    base base-devel \
+    linux linux-firmware linux-headers \
+    lvm2 cryptsetup \
+    grub efibootmgr \
+    networkmanager \
+    sudo vim nano git \
+    man-db man-pages \
+    curl wget \
+    bash-completion \
+    openssh \
+    zsh
+
+genfstab -U /mnt >> /mnt/etc/fstab
