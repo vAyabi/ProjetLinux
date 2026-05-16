@@ -361,3 +361,15 @@ chown $USER_SON:$USER_SON /home/$USER_SON/.vimrc
 rm -f /tmp/vars.sh
 
 CHROOT
+
+# démontage
+umount -R /mnt
+swapoff /dev/vg_arch/lv_swap
+vgchange -an vg_arch
+cryptsetup close cryptlvm
+
+echo "Installation terminée, vous pouvez redémarrer."
+echo ""
+echo "Pour monter le volume chiffré manuellement :"
+echo "  cryptsetup open /dev/vg_arch/lv_luks mon_volume"
+echo "  mount /dev/mapper/mon_volume /mnt/point_de_montage"
