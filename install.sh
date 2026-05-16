@@ -295,3 +295,44 @@ bar {
     }
 }
 I3CONF
+
+# barre de statut
+cat > /home/$USER_MAIN/.config/i3/i3status.conf << 'I3STATUS'
+general {
+    colors = true
+    interval = 5
+}
+
+order += "disk /"
+order += "disk /home"
+order += "cpu_usage"
+order += "memory"
+order += "tztime local"
+
+disk "/" {
+    format = "/ : %avail"
+}
+disk "/home" {
+    format = "home : %avail"
+}
+cpu_usage {
+    format = "CPU : %usage"
+}
+memory {
+    format = "RAM : %used / %total"
+}
+tztime local {
+    format = "%d/%m/%Y %H:%M"
+}
+I3STATUS
+
+# xinitrc pour démarrer i3
+cat > /home/$USER_MAIN/.xinitrc << 'XINIT'
+#!/bin/sh
+setxkbmap fr
+exec i3
+XINIT
+
+chmod +x /home/$USER_MAIN/.xinitrc
+chown -R $USER_MAIN:$USER_MAIN /home/$USER_MAIN/.config
+chown $USER_MAIN:$USER_MAIN /home/$USER_MAIN/.xinitrc
