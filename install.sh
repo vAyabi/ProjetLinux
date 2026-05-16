@@ -130,3 +130,39 @@ EOF
 # hooks mkinitcpio pour LUKS et LVM
 sed -i 's/^HOOKS=.*/HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)/' /etc/mkinitcpio.conf
 mkinitcpio -P
+
+# GRUB avec support LUKS
+LUKS_UUID=$(blkid -s UUID -o value "${DISK}2")
+sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LUKS_UUID}:cryptlvm root=/dev/vg_arch/lv_root\"|" /etc/default/grub
+sed -i 's/^#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /etc/default/grub
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+
+# services au démarrage
+systemctl enable NetworkManager
+systemctl enable sshd
+
+# mot de passe root
+echo "root:$PASSWORD" | chpasswd
+
+# groupe partagé père/fils
+groupadd $GROUP_SHARED
+
+# collegue : admin avec sudo et virtualbox
+useradd -m -G wheel,audio,video,storage,vboxusers,$GROUP_SHARED -s /bin/bash $USER_MAIN
+echo "$USER_MAIN:$PASSWORD" | chpasswd
+
+# fils : usage C uniquement, pas de sudo
+useradd -m -G audio,video,$GROUP_SHARED -s /bin/bash $USER_SON
+echo "$USER_SON:$PASSWORD" | chpasswd
+
+# activation sudo pour wheel
+sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
+
+# dossier partagé avec setgid pour héritage du groupe
+chown root:$GROUP_SHARED $MOUNT_SHARED
+chmod 2775 $MOUNT_SHARED
+
+# dossier vbox appartient à collegue
+chown $USER_MAIN:vboxusers $MOUNT_VBOX
+chmod 775 $MOUNT_VBOX
