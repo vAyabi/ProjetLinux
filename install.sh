@@ -89,3 +89,44 @@ pacstrap -K /mnt \
     zsh
 
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# passage des variables dans le chroot
+cat > /mnt/tmp/vars.sh << EOF
+HOSTNAME="$HOSTNAME"
+TIMEZONE="$TIMEZONE"
+LOCALE="$LOCALE"
+KEYMAP="$KEYMAP"
+PASSWORD="$PASSWORD"
+USER_MAIN="$USER_MAIN"
+USER_SON="$USER_SON"
+GROUP_SHARED="$GROUP_SHARED"
+DISK="$DISK"
+MOUNT_VBOX="$MOUNT_VBOX"
+MOUNT_SHARED="$MOUNT_SHARED"
+EOF
+
+arch-chroot /mnt /bin/bash << 'CHROOT'
+
+source /tmp/vars.sh
+
+# timezone
+ln -sf /usr/share/zoneinfo/$TIMEZONE /etc/localtime
+hwclock --systohc
+
+# locale
+sed -i "s/#$LOCALE UTF-8/$LOCALE UTF-8/" /etc/locale.gen
+echo "LANG=$LOCALE" > /etc/locale.conf
+echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
+locale-gen
+
+# hostname
+echo "$HOSTNAME" > /etc/hostname
+cat > /etc/hosts << EOF
+127.0.0.1   localhost
+::1         localhost
+127.0.1.1   $HOSTNAME.localdomain $HOSTNAME
+EOF
+
+# hooks mkinitcpio pour LUKS et LVM
+sed -i 's/^HOOKS=.*/HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)/' /etc/mkinitcpio.conf
+mkinitcpio -P
