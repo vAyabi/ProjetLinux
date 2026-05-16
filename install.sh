@@ -336,3 +336,28 @@ XINIT
 chmod +x /home/$USER_MAIN/.xinitrc
 chown -R $USER_MAIN:$USER_MAIN /home/$USER_MAIN/.config
 chown $USER_MAIN:$USER_MAIN /home/$USER_MAIN/.xinitrc
+
+# vimrc pour le fils, dev C sans IDE
+cat > /home/$USER_SON/.vimrc << 'VIMRC'
+syntax on
+set number
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set autoindent
+set colorcolumn=80
+set hlsearch
+
+" F5 : compiler et exécuter
+autocmd FileType c nnoremap <F5> :!gcc -Wall -Wextra -o %:r % && ./%:r<CR>
+" F6 : compiler seulement
+autocmd FileType c nnoremap <F6> :!gcc -Wall -Wextra -o %:r %<CR>
+" F7 : valgrind
+autocmd FileType c nnoremap <F7> :!valgrind --leak-check=full ./%:r<CR>
+VIMRC
+
+chown $USER_SON:$USER_SON /home/$USER_SON/.vimrc
+
+rm -f /tmp/vars.sh
+
+CHROOT
