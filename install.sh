@@ -132,7 +132,7 @@ sed -i 's/^HOOKS=.*/HOOKS=(base udev autodetect microcode modconf kms keyboard k
 mkinitcpio -P
 
 # GRUB avec support LUKS
-LUKS_UUID=$(blkid -s UUID -o value "${DISK}2")
+LUKS_UUID=$(blkid -s UUID -o value /dev/sda2)
 sed -i "s|^GRUB_CMDLINE_LINUX=.*|GRUB_CMDLINE_LINUX=\"cryptdevice=UUID=${LUKS_UUID}:cryptlvm root=/dev/vg_arch/lv_root\"|" /etc/default/grub
 sed -i 's/^#GRUB_ENABLE_CRYPTODISK=y/GRUB_ENABLE_CRYPTODISK=y/' /etc/default/grub
 grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
