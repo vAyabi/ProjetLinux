@@ -166,3 +166,49 @@ chmod 2775 $MOUNT_SHARED
 # dossier vbox appartient à collegue
 chown $USER_MAIN:vboxusers $MOUNT_VBOX
 chmod 775 $MOUNT_VBOX
+
+# mise à jour et paquets graphiques
+pacman -Syu --noconfirm
+
+pacman -S --noconfirm xorg-server xorg-xinit xorg-xrandr xorg-xsetroot
+
+# i3 et outils associés
+pacman -S --noconfirm i3-wm i3status i3lock dmenu rofi picom feh alacritty
+
+# display manager
+pacman -S --noconfirm lightdm lightdm-gtk-greeter
+systemctl enable lightdm
+
+# polices
+pacman -S --noconfirm ttf-dejavu ttf-font-awesome noto-fonts
+
+# navigateur
+pacman -S --noconfirm firefox
+
+# outils C pour le fils, pas d'IDE
+pacman -S --noconfirm gcc gdb make valgrind
+
+# éditeurs
+pacman -S --noconfirm vim nano
+
+# virtualbox
+pacman -S --noconfirm virtualbox virtualbox-host-modules-arch
+
+# outils système
+pacman -S --noconfirm htop tmux unzip zip tree ncdu thunar gparted nmap net-tools
+
+# config i3 pour collegue
+mkdir -p /home/$USER_MAIN/.config/i3
+
+cat > /home/$USER_MAIN/.config/i3/config << 'I3CONF'
+set $mod Mod4
+
+font pango:DejaVu Sans Mono 10
+
+gaps inner 8
+gaps outer 4
+default_border pixel 2
+
+exec --no-startup-id picom
+exec --no-startup-id nm-applet
+exec --no-startup-id xsetroot -solid "#1e1e2e"
