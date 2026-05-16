@@ -35,3 +35,25 @@ sgdisk -n 1:0:+512M -t 1:ef00 "$DISK"
 sgdisk -n 2:0:0     -t 2:8e00 "$DISK"
 partprobe "$DISK"
 sleep 2
+# chiffrement LUKS sur sda2
+echo -n "$PASSWORD" | cryptsetup luksFormat --type luks2 "${DISK}2" -
+echo -n "$PASSWORD" | cryptsetup open "${DISK}2" cryptlvm -
+
+# LVM
+pvcreate /dev/mapper/cryptlvm
+vgcreate vg_arch /dev/mapper/cryptlvm
+
+lvcreate -L 8G       -n lv_swap   vg_arch
+lvcreate -L 20G      -n lv_root   vg_arch
+lvcreate -L 20G      -n lv_vbox   vg_arch
+lvcreate -L 5G       -n lv_shared vg_arch
+lvcreate -L 10G      -n lv_luks   vg_arch
+lvcreate -l 100%FREE -n lv_home   vg_arch
+
+# formatage
+mkfs.fat -F32 "${DISK}1"
+mkswap /dev/vg_arch/lv_swap
+mkfs.ext4 /dev/vg_arch/lv_root
+mkfs.ext4 /dev/vg_arch/lv_home
+mkfs.ext4 /dev/vg_arch/lv_vbox
+mkfs.ext4 /dev/vg_arch/lv_shared
