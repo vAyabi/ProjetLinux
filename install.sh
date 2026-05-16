@@ -105,7 +105,7 @@ MOUNT_VBOX="$MOUNT_VBOX"
 MOUNT_SHARED="$MOUNT_SHARED"
 EOF
 
-arch-chroot /mnt /bin/bash << 'CHROOT'
+arch-chroot /mnt /bin/bash << CHROOT
 
 source /tmp/vars.sh
 
