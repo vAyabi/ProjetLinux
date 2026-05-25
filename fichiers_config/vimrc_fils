@@ -1,0 +1,15 @@
+syntax on
+set number
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set autoindent
+set colorcolumn=80
+set hlsearch
+
+" F5 : compiler et exécuter
+autocmd FileType c nnoremap <F5> :!gcc -Wall -Wextra -o %:r % && ./%:r<CR>
+" F6 : compiler seulement
+autocmd FileType c nnoremap <F6> :!gcc -Wall -Wextra -o %:r %<CR>
+" F7 : valgrind
+autocmd FileType c nnoremap <F7> :!valgrind --leak-check=full ./%:r<CR>

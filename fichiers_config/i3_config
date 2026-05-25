@@ -1,0 +1,86 @@
+set $mod Mod4
+
+font pango:DejaVu Sans Mono 10
+
+gaps inner 8
+gaps outer 4
+default_border pixel 2
+
+exec --no-startup-id picom
+exec --no-startup-id nm-applet
+exec --no-startup-id xsetroot -solid "#1e1e2e"
+
+bindsym $mod+Return exec alacritty
+bindsym $mod+d exec rofi -show drun
+bindsym $mod+b exec firefox
+bindsym $mod+e exec thunar
+bindsym $mod+Shift+q kill
+bindsym $mod+Shift+x exec i3lock -c 1e1e2e
+bindsym $mod+Shift+c reload
+bindsym $mod+Shift+r restart
+bindsym $mod+Shift+e exec i3-msg exit
+
+bindsym $mod+h focus left
+bindsym $mod+j focus down
+bindsym $mod+k focus up
+bindsym $mod+l focus right
+bindsym $mod+Left  focus left
+bindsym $mod+Down  focus down
+bindsym $mod+Up    focus up
+bindsym $mod+Right focus right
+
+bindsym $mod+Shift+h move left
+bindsym $mod+Shift+j move down
+bindsym $mod+Shift+k move up
+bindsym $mod+Shift+l move right
+
+bindsym $mod+f fullscreen toggle
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed
+bindsym $mod+t layout toggle split
+
+floating_modifier $mod
+bindsym $mod+Shift+space floating toggle
+
+set $ws1 "1"
+set $ws2 "2"
+set $ws3 "3"
+set $ws4 "4"
+set $ws5 "5"
+
+bindsym $mod+1 workspace $ws1
+bindsym $mod+2 workspace $ws2
+bindsym $mod+3 workspace $ws3
+bindsym $mod+4 workspace $ws4
+bindsym $mod+5 workspace $ws5
+
+bindsym $mod+Shift+1 move container to workspace $ws1
+bindsym $mod+Shift+2 move container to workspace $ws2
+bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+4 move container to workspace $ws4
+bindsym $mod+Shift+5 move container to workspace $ws5
+
+bindsym XF86AudioRaiseVolume exec pactl set-sink-volume @DEFAULT_SINK@ +5%
+bindsym XF86AudioLowerVolume exec pactl set-sink-volume @DEFAULT_SINK@ -5%
+bindsym XF86AudioMute exec pactl set-sink-mute @DEFAULT_SINK@ toggle
+
+mode "resize" {
+    bindsym h resize shrink width 5 px or 5 ppt
+    bindsym j resize grow height 5 px or 5 ppt
+    bindsym k resize shrink height 5 px or 5 ppt
+    bindsym l resize grow width 5 px or 5 ppt
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+bar {
+    status_command i3status -c ~/.config/i3/i3status.conf
+    position top
+    colors {
+        background #1e1e2e
+        statusline #cdd6f4
+        focused_workspace  #89b4fa #89b4fa #1e1e2e
+        inactive_workspace #1e1e2e #1e1e2e #cdd6f4
+    }
+}
